@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     "shop.apps.ShopConfig",
     "cart.apps.CartConfig",
     "orders.apps.OrdersConfig",
+    "payment.apps.PaymentConfig",
 ]
 
 MIDDLEWARE = [
@@ -109,3 +110,7 @@ EMAIL_HOST_USER = 'mel.mockingjay@gmail.com'
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+
+STRIPE_PUBLISHABLE_KEY = env('STRIPE_PUBLISHABLE_KEY') 
+STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')  
+STRIPE_API_VERSION = '2022-08-01'
