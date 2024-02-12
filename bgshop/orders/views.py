@@ -18,6 +18,7 @@ def order_create(request):
                     product=item["product"],
                     price=item["price"],
                     quantity=item["quantity"],
+                    
                 )
             
             cart.clear()
