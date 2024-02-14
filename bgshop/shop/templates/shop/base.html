@@ -20,7 +20,7 @@
             Your cart:
             <a href="{% url 'cart:cart_detail' %}">
               {{ cart|length }} item{{ cart|length|pluralize }}, 
-              ${{ cart.get_total_price }}
+              ${{ cart.get_total_price_after_discount|floatformat:2 }}
             </a>
           {% elif not order %}
             Your cart is empty.
@@ -30,7 +30,6 @@
     </div>
     <div id="content">
       {% block content %}
-
       {% endblock %}
     </div>
   </body>

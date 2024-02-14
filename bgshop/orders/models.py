@@ -1,6 +1,9 @@
 from django.db import models
 from shop.models import Product
 from django.conf import settings
+from decimal import Decimal
+from coupons.models import Coupon
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class Order(models.Model):
@@ -14,6 +17,12 @@ class Order(models.Model):
     updated = models.DateTimeField(auto_now=True)
     paid = models.BooleanField(default=False)
     stripe_id = models.CharField(max_length=250, blank=True)
+    coupon = models.ForeignKey(
+        Coupon, related_name="orders", null=True, blank=True, on_delete=models.SET_NULL
+    )
+    discount = models.IntegerField(
+        default=0, validators=[MinValueValidator(0), MaxValueValidator(100)]
+    )
 
     class Meta:
         ordering = ["-created"]
@@ -25,19 +34,30 @@ class Order(models.Model):
         return f"Order {self.id}"
 
     def get_total_cost(self):
-        return sum(item.get_cost() for item in self.items.all())
+        total_cost = self.get_total_cost_before_discount()
+        return total_cost - self.get_discount()
 
     def get_stripe_url(self):
         if not self.stripe_id:
-            #no payment associated
-            return ''
-        if '__test__' in settings.STRIPE_SECRET_KEY:
+            # no payment associated
+            return ""
+        if "__test__" in settings.STRIPE_SECRET_KEY:
             # Stripe path for test payments
-            path = '/test/'
+            path = "/test/"
         else:
             # Stripe path for real payments
-            path = '/'
-        return f'https://dashboard.stripe.com{path}payments/{self.stripe_id}'
+            path = "/"
+        return f"https://dashboard.stripe.com{path}payments/{self.stripe_id}"
+
+    def get_total_cost_before_discount(self):
+        return sum(item.get_cost() for item in self.items.all())
+
+    def get_discount(self):
+        total_cost = self.get_total_cost_before_discount()
+        if self.discount:
+            return total_cost * (self.discount / Decimal(100))
+        return Decimal(0)
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
@@ -46,7 +66,6 @@ class OrderItem(models.Model):
     )
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
-    
 
     def __str__(self):
         return str(self.id)
