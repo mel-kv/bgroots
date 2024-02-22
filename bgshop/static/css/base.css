@@ -191,6 +191,12 @@ ul.errorlist {
   width: 96%;
   margin-right: -220px;
   overflow: hidden;
+ 
+}
+
+.product-list {
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .product-list .item {
@@ -199,11 +205,13 @@ ul.errorlist {
   float: left;
   text-align: center;
   line-height: 1.2;
+  
 }
 
 .product-list .item img {
   width: 100%;
   margin-bottom: 8px;
+  
 }
 
 .product-detail {
